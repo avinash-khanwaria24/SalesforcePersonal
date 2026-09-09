@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Pending/failed Contact Sync publishes. Compact retry source of truth.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>false</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <label>Contact Sync Outbox</label>
+    <nameField>
+        <displayFormat>OB-{00000000}</displayFormat>
+        <label>Outbox Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Contact Sync Outboxes</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

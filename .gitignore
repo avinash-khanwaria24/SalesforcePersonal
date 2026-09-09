@@ -1,0 +1,9 @@
+.sfdx/
+.sf/
+.localdevserver/
+.vscode/
+.idea/
+**/lwc/*/__tests__/
+coverage/
+.DS_Store
+*.log
