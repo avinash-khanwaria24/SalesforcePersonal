@@ -1,0 +1,6 @@
+**/.profile-meta.xml
+**/jsconfig.json
+**/.eslintrc.json
+**/.eslintrc
+**/__tests__/**
+package.xml
