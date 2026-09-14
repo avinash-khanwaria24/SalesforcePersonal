@@ -4,6 +4,29 @@
 **Requirement:** 1.2 Corporate Ordering
 **Products:** Sales Cloud, B2B Commerce (Lightning), Experience Cloud, Salesforce Order Management
 **Principle:** Prefer Salesforce out-of-the-box (OOTB) features. Use custom Apex/LWC only where documented limits or FSG-specific rules make OOTB insufficient.
+**Well-Architected:** Account-first identity ([Salesforce Architects](https://www.salesforce.com/blog/experience-cloud-identity-access-account/)), least privilege, and documented large-data-volume (LDV) limits.
+
+---
+
+## 0. Executive recommendation
+
+**Use Business Accounts + Contacts + B2B Commerce Buyer Groups, with each branch as its own Buyer Account.**
+
+That is the Salesforce-documented B2B pattern. It is the only model that keeps contracted catalog/pricing, branch-only user administration, and 15,000 locations inside platform features and published limits.
+
+| Need | OOTB mechanism | Custom only if |
+| --- | --- | --- |
+| Multi-year Master Agreement | Standard **Contract** on the enterprise Account | Custom Agreement object (unnecessary) |
+| Pre-negotiated catalog and prices | **Buyer Group + Entitlement Policy + Price Book** (one group per contract) | Per-branch groups (anti-pattern; hits the 2,000 buyer-groups-per-product search index) |
+| Tiered volume discounts | **Price Adjustment Schedule / Tier** (`Volume`, Range or Slab) | Retrospective rebate true-up to ERP |
+| Delivery schedules | Branch shipping address + **Order Delivery Method** + **Desired Delivery Date** | Capacity-constrained `Delivery_Slot__c` |
+| Chef self-register with corporate email | Experience Cloud Login & Registration + OTP | Documented **self-reg handler** to bind email domain + location to the correct Branch Account |
+| One user manages others **only in their branch** | **Delegated External User Administration** + **Super User Access** on that Branch Account | Custom admin LWC (only if FSG refuses branch Accounts) |
+| 15,000 locations under one agreement | Regional **intermediate Accounts** (stay under 10,000 children per parent) | — |
+| HQ orders for thousands of stores | External Managed Accounts / Account Switcher **up to 200** | Custom location picker using `effectiveAccountId` (OOTB switcher degrades past 200, fails ~2,000) |
+| SSO per enterprise at scale | **Login Discovery** keyed off Account | Handler reads IdP key from Enterprise Account |
+
+**Do not use Person Accounts for corporate chefs.** They are representatives of a company, not the customer. Person Accounts cannot be Partner users, collapse hierarchy and contracts, and make Delegated External User Administration meaningless.
 
 ---
 
@@ -19,36 +42,106 @@ Corporate enterprises sign a multi-year Master Agreement with FSG. After the ent
 
 This is a **B2B Account-centric** problem (company + locations + contracted commerce), not a B2C Person Account problem.
 
-Official Salesforce guidance to follow:
+Official Salesforce guidance this design follows:
 
 - Identity and access start at **Account**: User → Contact → Account ([Salesforce Architects / Experience Cloud identity](https://www.salesforce.com/blog/experience-cloud-identity-access-account/)).
 - Person Accounts store **individual consumers**; default Accounts are **business accounts** ([Salesforce Help — Person Accounts](https://help.salesforce.com/s/articleView?id=sf.account_person.htm)).
-- Do not put more than **10,000 child records** under one parent Account ([Salesforce Help — Sharing performance](https://help.salesforce.com/s/articleView?id=platform.security_sharing_performance.htm); [Designing Record Access for Enterprise Scale](https://developer.salesforce.com/docs/atlas.en-us.draes.meta/draes/draes_object_relationships_parent_child_data_skew.htm)).
+- Do not put more than **10,000 child records** under one parent Account ([Salesforce Help — Sharing performance](https://help.salesforce.com/s/articleView?id=platform.security_sharing_performance.htm); [Parent-Child Data Skew](https://developer.salesforce.com/docs/atlas.en-us.draes.meta/draes/draes_object_relationships_parent_child_data_skew.htm)).
 - B2B catalog/price entitlement is **Buyer Group + Entitlement Policy + Price Book**, not one policy per location ([B2B Commerce data model](https://developer.salesforce.com/docs/commerce/salesforce-commerce/guide/b2b-b2c-dev-data-model.html)).
 - Delegated user admin is scoped to the user’s Account ([Delegate External User Administration](https://help.salesforce.com/s/articleView?id=sf.networks_delegate_external_user_admin.htm); [Buy on behalf / External Managed Accounts](https://help.salesforce.com/s/articleView?id=commerce.comm_buy_on_behalf.htm)).
+- Super User Access is same-Account / same-or-below-role visibility, not cross-branch admin ([Super User Access](https://help.salesforce.com/s/articleView?id=sf.networks_partners_super_user_access.htm)).
+- Account Role Optimization (ARO) and Account Relationship Data Sharing Rules **cannot be combined** ([Salesforce Help](https://help.salesforce.com/s/articleView?id=004693450)). FSG needs ARO at this volume, so HQ cross-branch access must use Sharing Sets, sharing rules, or a custom picker — not ARDS.
 
 ---
 
-## 2. Recommended solution (OOTB-first)
+## 2. Two solution paths (OOTB and custom)
 
-**Use Business Accounts + Contacts + B2B Commerce Buyer Groups, with each branch as its own Buyer Account.**
+Salesforce’s own docs tell you to stay on the standard commerce and identity model and extend only at documented extension points. Both paths are described so FSG can see the trade-off. **Path A is the recommended production design.** Path B is the fallback if FSG refuses additional Accounts; it is not Salesforce best practice.
 
-That single decision satisfies all of the following at once:
+### 2.1 Path A — OOTB-first (recommended)
 
-| Need | Why this model works |
+```mermaid
+flowchart TB
+  subgraph identity [Identity - Experience Cloud]
+    Email[Corporate email] --> LD[Login Discovery / Self-Reg]
+    LD --> Handler[ConfigurableSelfRegHandler]
+    Handler --> Contact[Contact on Branch Account]
+    Contact --> User[CC+ Experience User]
+  end
+
+  subgraph crm [CRM hierarchy]
+    Ent[Enterprise Parent Account]
+    Reg[Regional Accounts]
+    Br[Branch Buyer Account]
+    Ent --> Reg --> Br
+    Ctr[Contract - Master Agreement] --> Ent
+  end
+
+  subgraph commerce [B2B Commerce]
+    BG[Buyer Group - one per Contract]
+    EP[Commerce Entitlement Policy]
+    PB[Contracted Price Book]
+    PAS[Price Adjustment Schedule]
+    Br --> BGM[BuyerGroupMember]
+    BGM --> BG
+    BG --> EP
+    BG --> PB
+    PB --> PAS
+  end
+
+  User --> Br
+  Br --> Cart[Cart / Order on Branch]
+```
+
+**What stays 100% OOTB**
+
+1. **Business Account hierarchy** — enterprise, region, branch. Each branch is a Buyer Account.
+2. **Contract** on the enterprise for the Master Agreement, with `Pricebook2Id`.
+3. **One Buyer Group per Master Agreement** shared by all 15,000 branch Buyer Accounts (limit: 10 million members per group).
+4. **Commerce Entitlement Policy** for the contracted catalog; **BuyerGroupPricebook** for negotiated prices.
+5. **Price Adjustment Schedule** (`ScheduleType = Volume`) for cart-time tiered discounts.
+6. **Order Delivery Method** + checkout **Desired Delivery Date**, defaulted from branch fields.
+7. **Experience Cloud** B2B store, email OTP, Login Discovery.
+8. **Delegated External User Administration** so a branch manager creates / resets / deactivates users **only on that Account**.
+9. **Super User Access** so that manager sees other users’ orders/cases **on the same branch**.
+10. **Customer Community Plus** + Commerce Buyer, with **Account Role Optimization** and one portal role per Account.
+11. **Sharing Sets** (User → Contact → Account) for branch-scoped record access; external OWD **Private**.
+12. **External Managed Accounts / Account Switcher** only for HQ users who buy for **≤ 200** locations.
+
+**Documented OOTB extensions (still the Salesforce-supported path, not a custom engine)**
+
+- `Auth.ConfigurableSelfRegHandler` or B2B `CommerceSelfRegistrationController` to place the Contact on the **chosen Branch Account** instead of the site default Account ([ConfigurableSelfRegHandler](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_interface_Auth_ConfigurableSelfRegHandler.htm), [B2B custom self-registration](https://developer.salesforce.com/docs/commerce/salesforce-commerce/guide/b2b-comm-custom-self-registration.html)).
+- Login Discovery handler that reads the enterprise IdP key from Account ([identity blog](https://www.salesforce.com/blog/experience-cloud-identity-access-account/)).
+- Checkout Flow / LWR component that defaults and validates `desiredDeliveryDate` from branch cadence fields.
+
+### 2.2 Path B — custom (not recommended as primary)
+
+**Single Enterprise Account + custom Location object + all Contacts on the enterprise.**
+
+This looks simpler and avoids 15,000 Accounts, but it **breaks** the OOTB features Path A relies on:
+
+| OOTB feature lost | Consequence |
 | --- | --- |
-| Master Agreement catalog and pricing | All 15,000 branch Accounts join **one Buyer Group** tied to the Contract |
-| Branch-only user administration | OOTB **Delegated External User Administration** is Account-scoped |
-| 15,000 locations at scale | Intermediate regional Accounts keep parent-child count under 10,000 |
-| Corporate email registration | Experience Cloud Login & Registration + Login Discovery, with a documented self-reg handler |
-| Volume discounts | OOTB **Price Adjustment Schedules / Tiers** on the contracted price book |
-| Delivery schedules | Branch shipping address + **Order Delivery Method** + **Desired Delivery Date**, optionally a small schedule object |
+| Delegated External User Administration | Admin is no longer branch-scoped. Must write a custom user-admin LWC and enforce Location in Apex. |
+| Super User Access | Visibility fans out to every contact on the enterprise, not “this kitchen only.” |
+| B2B Buyer Account / cart / ship-to | Commerce context is Account-based; you would fake a buyer per location anyway. |
+| Parent-child / account data skew | 15,000+ Contacts on one Account is the textbook [parent-child data skew](https://developer.salesforce.com/docs/atlas.en-us.draes.meta/draes/draes_object_relationships_parent_child_data_skew.htm) example. |
+| Sharing Sets | Cannot isolate “users in my branch only” without custom sharing. |
 
-**Do not use Person Accounts for corporate chefs or store managers.** They are representatives of a company, not the customer. Person Accounts also cannot be Partner users and collapse company hierarchy, contracts, and branch-scoped admin.
+Use Path B only if FSG refuses additional Accounts **and** accepts 100% custom commerce buyer context, custom user admin, and custom sharing. That is not Salesforce best practice.
+
+**Person Accounts are rejected for both paths.** Help text: they extend B2B account functionality to store information about **individual people**. Using them for 15,000 chefs would:
+
+- Treat the person as the customer, so catalog/price would be per person, not per company.
+- Destroy Account hierarchy and Contract ownership.
+- Block Partner licenses if FSG later needs them ([portal-to-community guidance](https://resources.docs.salesforce.com/latest/latest/en-us/sfdc/pdf/salesforce_portal_to_community_migration_cheatsheet.pdf): Person Accounts cannot be partner accounts).
+- Make Delegated External User Administration meaningless (each person is their own Account).
+
+**Micro-buyers** (independent cafes / food trucks) still should be **Business Accounts**. A food truck is a company with one location, not a consumer.
 
 ---
 
-## 3. OOTB data model
+## 3. OOTB data model (Path A)
 
 ```text
 Enterprise Parent Account  (legal entity, Master Agreement owner)
@@ -73,7 +166,7 @@ Enterprise Parent Account  (legal entity, Master Agreement owner)
 | User | Customer Community Plus | Login identity; created from the Contact |
 | Contract | Master Agreement | Multi-year term, status, contracted price book |
 | BuyerAccount | Enabled on each Branch Account | Makes the Account a Commerce buyer |
-| BuyerGroup | One per Master Agreement (or per pricing tier) | Shared catalog, prices, entitlements |
+| BuyerGroup | One per Master Agreement (or per pricing track) | Shared catalog, prices, entitlements |
 | BuyerGroupMember | Branch Account → BuyerGroup | Entitles the location to the enterprise deal |
 | CommerceEntitlementPolicy | Contracted catalog | Which products the buyer group can see |
 | Pricebook2 + PricebookEntry | Contracted prices | Pre-negotiated unit prices |
@@ -82,6 +175,8 @@ Enterprise Parent Account  (legal entity, Master Agreement owner)
 | OrderDeliveryMethod | Cold-chain / standard / rush | Checkout delivery options |
 | CartDeliveryGroup / OrderDeliveryGroup | DesiredDeliveryDate | Requested delivery date on the order |
 | WebStore | FSG B2B store | Authenticated wholesale storefront |
+
+Do **not** model a branch as the standard **Location** object. Location is for inventory / warehouses / OMS fulfillment nodes, not for B2B buyers. Buyer context, delegated admin, and sharing all key off **Account**.
 
 ### 3.2 Why each branch is an Account (not a Location custom object)
 
@@ -146,11 +241,13 @@ License (OOTB feature fit, not “buy the most expensive SKU”):
 | Persona | License | Why |
 | --- | --- | --- |
 | Branch chef / buyer | Customer Community Plus + Commerce Buyer | Needs cart/order on their Account, and optionally reports |
-| Branch user admin | Same, plus **Delegated External User Administration** | OOTB Account Management page |
-| Enterprise HQ buyer-for (limited locations) | CC+ + **Buyer Manager** + Account Switcher | OOTB “Buy For” / Manage Users on External Managed Accounts |
+| Branch user admin | Same, plus **Delegated External User Administration** and **Super User Access** | OOTB Account Management page + same-branch record visibility |
+| Enterprise HQ buyer-for (≤200 locations) | CC+ + **Buyer Manager** + Account Switcher | OOTB “Buy For” / Manage Users on External Managed Accounts |
 | High-volume buyer with no admin rights (optional later) | Customer Community | Sharing Sets only; cannot use DEUA or full sharing model |
 
-**Enable Account Role Optimization (ARO).** Customer Community Plus creates portal roles. Default org limit is **50,000 portal roles**. Fifteen thousand branches with 2+ users each will consume roles quickly. ARO delays role creation until a second user exists on the Account. Reduce roles per Account to the minimum (often one). Request a limit increase only after ARO and role minimization.
+**Enable Account Role Optimization (ARO).** Customer Community Plus creates portal roles. Default org limit is **50,000 portal roles** ([Experience Cloud user licenses](https://help.salesforce.com/s/articleView?id=users_license_types_communities.htm)). Fifteen thousand branches with 2+ users each will consume roles quickly. ARO delays role creation until a second user exists on the Account. Reduce roles per Account to the minimum (often one). Request a limit increase only after ARO and role minimization.
+
+**Do not enable Account Relationship Data Sharing Rules in this org if ARO is on.** Salesforce documents that ARDS does not work when ARO (or Person Accounts) is enabled. HQ cross-branch needs must use Sharing Sets, owner-based/criteria sharing rules, or the custom Account Switcher — not ARDS.
 
 Do **not** default every corporate buyer to Partner Community. Partner licenses are for partners who need Leads/Opportunities/PRM. FSG’s chefs are customers, not channel partners. Partner Community also **cannot** use Person Accounts.
 
@@ -179,23 +276,22 @@ Handler / Flow steps:
 4. Require the user to pick a **Branch Account** that is a descendant of that enterprise (and active under the current Contract).
 5. Create Contact on the **selected Branch Account**, then Experience Cloud User.
 6. Enable Buyer Account on the branch if not already enabled; add BuyerGroupMember from the active Contract.
-7. First active user on a branch: assign permission set **Branch User Admin** (Delegated External User Administration). Subsequent users: **Branch Buyer** only.
+7. First active user on a branch: assign permission set **Branch User Admin** (Delegated External User Administration + Super User Access). Subsequent users: **Branch Buyer** only.
 8. If domain matches but branch is unknown, or domain does not match: create no buyer access. Create a Case / Approval for FSG onboarding. Never attach unmatched users to a dummy “Unassigned” Account (documented skew anti-pattern).
 
 Email domain is **not** proof of employment. Salesforce’s own identity guidance treats Account as the trust boundary; FSG should add OTP plus either (a) branch admin approval of first-time users or (b) enterprise SSO via Login Discovery once the client is large enough.
 
 ### 4.4 Branch-only user management (OOTB)
 
-**Recommended:** Delegated External User Administration on the Branch Account.
+Salesforce splits “manage users” and “see their data.” Use both, still OOTB, still Account-scoped.
 
-A branch manager can:
+| Capability | OOTB feature | Scope |
+| --- | --- | --- |
+| Create / edit / deactivate users, reset passwords, assign allowed permission sets | **Delegated External User Administration** → Account Management page | Contacts on **that** Account only |
+| See other chefs’ orders, cases, and related records on the same kitchen | **Super User Access** (same role or below on the Account) | Same Account; does not cross branches |
+| Buy or manage users on *other* Accounts | **Buyer Manager** + External Managed Accounts | Hard limit **200** Buy For accounts per user |
 
-- Create / edit users for Contacts on **that** Account
-- Reset passwords
-- Deactivate users
-- Assign permitted permission sets
-
-They cannot see other branches because they are not Contacts on those Accounts and are not given External Managed Account rows.
+A branch manager cannot see other branches because they are not Contacts on those Accounts and are not given External Managed Account rows.
 
 **Do not use External Managed Accounts / Account Switcher for “admin of all 15,000 stores.”** Salesforce documents a **200 Buy For / managed accounts per user** limit. Performance degrades past 200; the switcher **fails at ~2,000**. HQ users who must order for many locations need the custom Account Switcher path in section 6.
 
@@ -203,9 +299,9 @@ They cannot see other branches because they are not Contacts on those Accounts a
 
 - External OWD: **Private** for Account, Order, Case, Cart-related objects as applicable.
 - Each user sees their Branch Account via the User → Contact → Account relationship.
-- Sharing Set (works even on Customer Community): AccountId = user’s Account, plus related Orders/Cases/Carts.
-- CC+ role hierarchy only if a true manager-sees-team requirement appears **inside** a branch. Do not model the 15,000-location org chart as roles.
-- Cross-branch HQ visibility: Account Relationship Data Sharing Rules or a small set of sharing rules by `Enterprise_Parent__c`, not 15,000 manual shares.
+- Sharing Set (works even on Customer Community): AccountId = user’s Account, plus related Orders/Cases/Carts ([Create a Sharing Set](https://help.salesforce.com/s/articleView?id=sf.networks_setting_light_users.htm)).
+- Super User Access / CC+ role hierarchy only if a true manager-sees-team requirement appears **inside** a branch. Do not model the 15,000-location org chart as roles.
+- Cross-branch HQ visibility: Sharing Set via Account Contact Relationships (for small HQ sets) or a custom picker. **Not** Account Relationship Data Sharing Rules, because ARO is required at this volume.
 
 ---
 
@@ -229,10 +325,11 @@ Stay inside documented B2B limits ([entitlement limits](https://developer.salesf
 - ≤ 20 buyer groups per buyer account (soft; do not one-off every location)
 - ≤ 50 price books per buyer group; ≤ 25 evaluated per pricing call
 - ≤ 200 buyer groups per entitlement policy
+- ≤ 2,000 buyer groups indexed per product (search)
 
 ### 5.2 Tiered volume discounts (OOTB)
 
-Use **Price Adjustment Schedule** (`ScheduleType = Volume`) and **Price Adjustment Tier**:
+Use **Price Adjustment Schedule** (`ScheduleType = Volume`) and **Price Adjustment Tier** ([PriceAdjustmentSchedule](https://developer.salesforce.com/docs/atlas.en-us.revenue_lifecycle_management_dev_guide.meta/revenue_lifecycle_management_dev_guide/sforce_api_objects_priceadjustmentschedule.htm)):
 
 - `Range`: entire quantity gets the highest qualifying tier (typical wholesale break).
 - `Slab`: each quantity band gets its own rate.
@@ -252,7 +349,7 @@ OOTB Commerce already has:
 
 - Branch Account shipping addresses (each kitchen’s dock)
 - **Order Delivery Method** (e.g. Cold Chain AM, Dry Grocery, Will-Call)
-- Checkout **Desired Delivery Date**
+- Checkout **Desired Delivery Date** ([Update Checkout Information](https://developer.salesforce.com/docs/commerce/salesforce-commerce/guide/b2b-comm-checkout-update-information.html))
 - Shipping integration that can filter methods by address / date
 - OMS **Order Delivery Group** for fulfillment
 
@@ -261,10 +358,11 @@ Put contracted cadence on the **Branch Account** with standard or custom fields,
 - `Preferred_Delivery_Days__c` (multi-select)
 - `Delivery_Window__c` (e.g. 04:00–07:00)
 - `Default_Delivery_Method__c`
+- `TimeZoneSidKey` (branch local time; FSG spans 14 time zones)
 
 Checkout Flow / LWR checkout component:
 
-1. Default `desiredDeliveryDate` to the next eligible day from the branch fields.
+1. Default `desiredDeliveryDate` to the next eligible day from the branch fields, computed in the branch time zone.
 2. Restrict selectable dates to those days (LWC validator or checkout calculator).
 3. Auto-select the contracted Order Delivery Method.
 
@@ -288,31 +386,15 @@ Salesforce’s own docs tell you when to customize. Use custom code for these ga
 | Role explosion if every branch has many CC+ users | 50,000 portal role default | ARO + fewer roles first; if still over, mix **Customer Community** buyers with **CC+** delegated admins, or request limit increase | Do not invent a parallel user table |
 | Chef works at multiple branches | One Contact, one Account | Enable **Contacts to Multiple Accounts**; Contact-Account Relationships. Commerce effective account still needs an explicit switch | EMA only if ≤200 locations per person |
 | SSO per enterprise at scale | One IdP button per client does not scale | Login Discovery handler reads IdP key from Enterprise Account ([Salesforce identity blog](https://www.salesforce.com/blog/experience-cloud-identity-access-account/)) | Configuration per Account, not a new package per client |
+| HQ visibility while ARO is on | ARDS is incompatible with ARO | Sharing Sets / criteria sharing / custom picker | Do not turn off ARO to unlock ARDS at 15k branches |
 
-### 6.1 Alternative custom model (not recommended as primary)
+### 6.1 Path B custom model (not recommended as primary)
 
-**Single Enterprise Account + custom Location object + all Contacts on the enterprise.**
-
-This looks simpler and avoids 15,000 Accounts, but it breaks OOTB:
-
-- Delegated admin is no longer branch-scoped (must write a custom user-admin LWC and enforce Location in Apex).
-- B2B Buyer context, carts, and ship-to are Account-based; you would fake a buyer per location anyway.
-- 15,000+ Contacts on one Account is the textbook **account data skew** example.
-
-Use this only if FSG refuses additional Accounts **and** accepts 100% custom commerce buyer context. That is not Salesforce best practice.
+Covered in section 2.2. Repeat: use it only if FSG refuses additional Accounts **and** accepts 100% custom commerce buyer context. That is not Salesforce best practice.
 
 ### 6.2 Person Account option (reject for 1.2)
 
-Person Accounts are for **individual consumers** (Help: they extend B2B account functionality to store information about individual people).
-
-Using Person Accounts for 15,000 chefs would:
-
-- Treat the person as the customer, so contracted catalog/price would be per person, not per company.
-- Destroy Account hierarchy and Contract ownership.
-- Block Partner licenses if FSG later needs them.
-- Make Delegated External User Administration meaningless (each person is their own Account).
-
-**Micro-buyers** (independent cafes) still should be **Business Accounts**. A food truck is a company with one location, not a consumer.
+Covered in section 2.2. Person Accounts are for individual consumers, not enterprise branch buyers.
 
 ---
 
@@ -339,7 +421,8 @@ Using Person Accounts for 15,000 chefs would:
 
 1. Branch User Admin opens **Account Management** (OOTB).
 2. Adds a sous-chef as Contact → enables customer user.
-3. Cannot switch to another store’s Account.
+3. Super User Access lets them see that user’s orders on the same Account.
+4. Cannot switch to another store’s Account.
 
 ### 7.4 Ordering
 
@@ -360,10 +443,13 @@ FSG is a **large data volume** org (50k orders/day, 150k buyers, 15k locations o
 | Parent-child skew | 10,000 children per parent | Regional intermediate Accounts |
 | Ownership skew | 10,000 records per owner | Pool of integration/owner users; round-robin branch ownership |
 | Portal roles | 50,000 default | ARO, one role per Account, monitor 95% email from Salesforce |
+| ARO vs ARDS | Mutually exclusive | Keep ARO; do not use ARDS |
 | Account Switcher | 200 per user; fails ~2,000 | OOTB only for small HQ sets; custom picker otherwise |
 | Buyer groups per product (search) | 2,000 indexed | One (or few) groups per Master Agreement |
 | Buyer groups per account | 20 (soft) | Do not assign location-specific groups |
+| Buyer groups per entitlement policy | 200 | Few groups per contract, not per branch |
 | Price books per pricing call | 25 | One contracted book + sparse overlays |
+| Buyer Accounts per Buyer Group | 10 million | 15,000 members is well inside |
 | Buyer users | 1.5 million (soft) | 150k branch users is in range |
 | Time zones / 50k orders/day | Platform API and OMS throughput | Async order capture, index only needed fields, Big Objects / Data Cloud for history |
 
@@ -388,11 +474,12 @@ Also:
 | Tiered discounts | **Price Adjustment Schedule/Tier** | Rebate true-up engine |
 | Delivery schedule | Account fields + **Delivery Method + Desired Delivery Date** | Slot capacity object |
 | Registration | Experience Cloud self-reg + **documented handler** | Fully custom IdP |
-| Branch user admin | **Delegated External User Administration** | Custom admin LWC |
+| Branch user admin | **DEUA + Super User Access** | Custom admin LWC |
 | HQ buy-for many stores | External Managed Accounts if ≤200 | **Custom Account Switcher** |
+| Cross-branch sharing | Sharing Sets / custom picker | Do not use ARDS with ARO |
 | License | **Customer Community Plus** + ARO + Commerce Buyer | Mix CC for pure buyers if roles saturate |
 
-**Best overall answer:** OOTB B2B Commerce on Experience Cloud, with **each store as a Buyer Account** under a **skew-safe hierarchy**, **one Buyer Group per Master Agreement**, **Delegated External User Administration** for branch-only user management, and a **documented self-registration handler** that maps corporate email domain + location to that Account. Customize only registration matching, large-scale buy-for, rebate true-up, and delivery-slot capacity.
+**Best overall answer:** OOTB B2B Commerce on Experience Cloud, with **each store as a Buyer Account** under a **skew-safe hierarchy**, **one Buyer Group per Master Agreement**, **Delegated External User Administration + Super User Access** for branch-only user management, and a **documented self-registration handler** that maps corporate email domain + location to that Account. Customize only registration matching, large-scale buy-for, rebate true-up, and delivery-slot capacity.
 
 ---
 
@@ -403,8 +490,13 @@ Also:
 - [Best Practices for Optimizing Sharing Performance](https://help.salesforce.com/s/articleView?id=platform.security_sharing_performance.htm)
 - [Parent-Child Data Skew — Designing Record Access for Enterprise Scale](https://developer.salesforce.com/docs/atlas.en-us.draes.meta/draes/draes_object_relationships_parent_child_data_skew.htm)
 - [Experience Cloud User Licenses (portal role limit, ARO)](https://help.salesforce.com/s/articleView?id=users_license_types_communities.htm)
+- [Account Role Optimization](https://help.salesforce.com/s/articleView?id=sf.networks_partners_optimize_roles.htm)
+- [ARDS does not work with ARO or Person Accounts](https://help.salesforce.com/s/articleView?id=004693450)
+- [Create a Sharing Set](https://help.salesforce.com/s/articleView?id=sf.networks_setting_light_users.htm)
 - [ConfigurableSelfRegHandler](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_interface_Auth_ConfigurableSelfRegHandler.htm)
 - [Implement Custom Self-Registration for a B2B Store](https://developer.salesforce.com/docs/commerce/salesforce-commerce/guide/b2b-comm-custom-self-registration.html)
+- [Delegate External User Administration](https://help.salesforce.com/s/articleView?id=sf.networks_delegate_external_user_admin.htm)
+- [Super User Access](https://help.salesforce.com/s/articleView?id=sf.networks_partners_super_user_access.htm)
 - [Grant Buyers Access to External Accounts (Buy For, 200-account limit)](https://help.salesforce.com/s/articleView?id=commerce.comm_buy_on_behalf.htm)
 - [B2B Commerce Data Model](https://developer.salesforce.com/docs/commerce/salesforce-commerce/guide/b2b-b2c-dev-data-model.html)
 - [Entitlement Data Limits](https://developer.salesforce.com/docs/commerce/salesforce-commerce/guide/b2b-b2c-comm-data-model-entitlement-limits.html)
