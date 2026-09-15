@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Commerce_Buyer__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>True when this account is enabled as a B2B Commerce buyer and assigned to a buyer group.</description>
+    <label>Commerce Buyer</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Edit_Outside_User_Region</fullName>
+    <active>true</active>
+    <description>Regional merchandisers can only maintain availability in their operating region. Catalog admins bypass this rule.</description>
+    <errorConditionFormula>AND(
+  NOT($Permission.FSG_Bypass_Region_Validation),
+  NOT(ISBLANK($User.Operating_Region__c)),
+  NOT(ISBLANK(Region__c)),
+  Region__c &lt;&gt; $User.Operating_Region__c
+)</errorConditionFormula>
+    <errorDisplayField>Region__c</errorDisplayField>
+    <errorMessage>You can only create or edit Product Availability records for your operating region.</errorMessage>
+</ValidationRule>

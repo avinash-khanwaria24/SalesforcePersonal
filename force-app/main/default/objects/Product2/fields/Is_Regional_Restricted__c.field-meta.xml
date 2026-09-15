@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Regional_Restricted__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>When true, the product must have at least one Published Product Availability before it is entitled in Commerce.</description>
+    <label>Regionally Restricted</label>
+    <trackHistory>true</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Supplier_Account__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Source farm or artisan. Informational only; do not use Product2 sharing to isolate this lookup. Regional access is enforced on Product Availability and Commerce entitlements.</description>
+    <label>Supplier Account</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Supplied Products</relationshipLabel>
+    <relationshipName>Supplied_Products</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>

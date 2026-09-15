@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Region_Code__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>Stable code used in sharing rules, buyer group names, and automation. Example: NA, EMEA, APAC, LATAM, UK, DE.</description>
+    <externalId>true</externalId>
+    <inlineHelpText>Use a short uppercase code. This value is referenced by sharing rules and custom metadata.</inlineHelpText>
+    <label>Region Code</label>
+    <length>20</length>
+    <required>true</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

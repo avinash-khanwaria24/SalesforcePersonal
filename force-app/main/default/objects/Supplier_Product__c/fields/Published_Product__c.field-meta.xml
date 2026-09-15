@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Published_Product__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Product2 created or linked when this listing is approved and published to the Commerce catalog.</description>
+    <label>Published Product</label>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Supplier Listings</relationshipLabel>
+    <relationshipName>Supplier_Listings</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

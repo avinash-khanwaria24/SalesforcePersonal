@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Operating_Region__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Primary operating region used to assign buyer groups, territories, and merchandising queues.</description>
+    <label>Operating Region</label>
+    <referenceTo>Region__c</referenceTo>
+    <relationshipLabel>Accounts</relationshipLabel>
+    <relationshipName>Accounts</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>

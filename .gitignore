@@ -1,0 +1,6 @@
+.sfdx/
+.sf/
+**/.DS_Store
+**/__pycache__/
+*.pyc
+.forceignore

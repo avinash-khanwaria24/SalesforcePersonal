@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Maps an FSG region to the OOTB Commerce Market, Buyer Group, Entitlement Policy, Price Book, and merchandising queue. Prefer this over hard-coded Flow values.</description>
+    <label>Region Commerce Map</label>
+    <pluralLabel>Region Commerce Maps</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

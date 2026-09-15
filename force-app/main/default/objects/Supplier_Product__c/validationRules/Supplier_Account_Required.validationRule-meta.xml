@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Supplier_Account_Required</fullName>
+    <active>true</active>
+    <description>Partner users must own listings for their own supplier account.</description>
+    <errorConditionFormula>AND(
+  OR(
+    $User.UserType = &quot;PowerPartner&quot;,
+    $User.UserType = &quot;CspLitePortal&quot;,
+    $User.UserType = &quot;PowerCustomerSuccess&quot;
+  ),
+  Supplier_Account__c &lt;&gt; $User.AccountId
+)</errorConditionFormula>
+    <errorDisplayField>Supplier_Account__c</errorDisplayField>
+    <errorMessage>You can only create listings for your own supplier account.</errorMessage>
+</ValidationRule>
