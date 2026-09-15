@@ -152,7 +152,7 @@ flowchart TD
   M -.->|same WebStore, different Buyer Group| B1
   SU -.->|not a buyer of wholesale| HQ
       </div>
-      <p>Region is stored as indexed <code>Region_Code__c</code>. ETM assigns internal Q&amp;C and sales. Buyers never sit in territories.</p>
+      <p>Region is stored as indexed <code>Region_Code__c</code>. A before-save Flow stamps it from billing address via Custom Metadata; ETM assignment rules then attach the Account to the matching leaf territory for internal Q&amp;C and sales. Buyers never sit in territories. Step-by-step: <code>automatic-region-assignment.md</code>.</p>
     </section>
 
     <section>

@@ -7,3 +7,4 @@ End-to-end Salesforce design (Core + Experience Cloud LWR + B2B Commerce + Order
 - [Architecture document](docs/fsg-architecture/FSG_ENTERPRISE_SOLUTION_ARCHITECTURE.md)
 - [Visual pack](docs/fsg-architecture/architecture.html)
 - [Index](docs/fsg-architecture/README.md)
+- [Automatic Account-to-region assignment](docs/fsg-architecture/automatic-region-assignment.md)

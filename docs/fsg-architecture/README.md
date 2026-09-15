@@ -13,6 +13,7 @@ Designed to Salesforce standards for large data volumes (LDV): 50k+ orders/day, 
 | --- | --- |
 | [FSG_ENTERPRISE_SOLUTION_ARCHITECTURE.md](./FSG_ENTERPRISE_SOLUTION_ARCHITECTURE.md) | Full architecture: processes, multi-currency, ETM, objects, sharing, licenses, product setup, and the 11 design questions |
 | [architecture.html](./architecture.html) | Visual companion: capability map, account model, ERD, sharing, and license stack |
+| [automatic-region-assignment.md](./automatic-region-assignment.md) | Step-by-step: automatically stamp Region_Code__c and assign the Account to an ETM territory |
 
 **Primary audience:** Salesforce architects, enterprise solution owners, and implementation leads.
 

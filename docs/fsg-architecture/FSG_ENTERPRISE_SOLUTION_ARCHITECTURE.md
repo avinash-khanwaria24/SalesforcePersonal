@@ -469,6 +469,8 @@ No custom object is introduced where a standard object already expresses the pro
 
 Region is a **first-class data attribute**, then **three different engines** consume it. Mixing those engines is the usual enterprise failure mode.
 
+**Automatic assignment runbook (address → `Region_Code__c` → ETM leaf):** [automatic-region-assignment.md](./automatic-region-assignment.md).
+
 ### 9.1 Data: every Account carries region
 
 On Account (indexed, not free text):
