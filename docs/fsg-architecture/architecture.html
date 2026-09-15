@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FSG Enterprise Architecture — Salesforce Core + LWR + B2B + OM</title>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      themeVariables: {
+        primaryColor: "#0E3A2F",
+        primaryTextColor: "#F4F1EA",
+        primaryBorderColor: "#C6A667",
+        lineColor: "#5C6B66",
+        secondaryColor: "#1F5A48",
+        tertiaryColor: "#E8E1D1",
+        fontFamily: "Georgia, 'Times New Roman', serif"
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --ink: #14221C;
+      --muted: #4E5C56;
+      --paper: #F6F1E6;
+      --card: #FFFcf7;
+      --line: #D9D0BE;
+      --gold: #C6A667;
+      --pine: #0E3A2F;
+      --pine-2: #1F5A48;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    header {
+      background: var(--pine);
+      color: #F4F1EA;
+      padding: 2.5rem 8vw 2rem;
+    }
+    header p { color: #D4C7A6; max-width: 70ch; }
+    h1, h2, h3 { font-family: Georgia, serif; font-weight: 600; }
+    h1 { margin: 0 0 0.4rem; font-size: 2.1rem; }
+    main { padding: 2rem 8vw 4rem; }
+    section { margin: 2.5rem 0; }
+    .kicker { letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.72rem; color: var(--gold); font-weight: 700; }
+    .grid { display: grid; gap: 1rem; }
+    .g3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--gold);
+      padding: 1rem 1.1rem;
+    }
+    .card h3 { margin: 0.2rem 0 0.5rem; font-size: 1.05rem; }
+    .card p, .card li { color: var(--muted); font-size: 0.92rem; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.55rem 0.7rem; text-align: left; vertical-align: top; }
+    th { background: var(--pine); color: #F4F1EA; }
+    .mermaid { background: var(--card); padding: 1rem; border: 1px solid var(--line); overflow-x: auto; }
+    footer { padding: 1.5rem 8vw; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
+    code { font-size: 0.86em; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="kicker">FreshSource Global · Salesforce Architect design</div>
+    <h1>Enterprise architecture visual pack</h1>
+    <p>
+      Core + Experience Cloud LWR + B2B Commerce + Order Management.
+      Designed for 50k orders/day, 150k branch buyers, 8k suppliers, 14 time zones, and LDV constraints.
+      Full narrative lives in <code>FSG_ENTERPRISE_SOLUTION_ARCHITECTURE.md</code>.
+    </p>
+  </header>
+  <main>
+    <section>
+      <h2>Capability map</h2>
+      <div class="grid g3">
+        <article class="card"><h3>1. Supplier network</h3><p>Public LWR apply → Q&amp;C territory queue → Partner users, localized catalog, pickup schedules.</p></article>
+        <article class="card"><h3>2. Corporate B2B</h3><p>HQ Contract → Cluster Accounts → Branch Buyer Accounts. Chefs register by corporate email + store code. One branch manager administers only that branch.</p></article>
+        <article class="card"><h3>3. Micro-buyers</h3><p>Self-register on regional store. Dynamic buyer group from country/region. Wholesale cart + invoices.</p></article>
+        <article class="card"><h3>4. Pricing</h3><p>Multi-currency PBE + volume tiers + pricing extension (weight × temperature × urgency × contract).</p></article>
+        <article class="card"><h3>5. Fulfillment tiers</h3><p>Standard Ground, Express Cold-Chain, Priority Ultra-Fresh as Order Delivery Methods, allocated from DC Locations.</p></article>
+        <article class="card"><h3>6. LDV controls</h3><p>No 15k-child HQ, no 150k CC+ roles, category entitlements, order archive, telemetry off-core.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <h2>End-to-end landscape</h2>
+      <div class="mermaid">
+flowchart LR
+  subgraph LWR["Experience Cloud LWR"]
+    S1["Supplier Network"]
+    S2["B2B NA / LATAM / EMEA"]
+    S3["Corporate chef registration"]
+  end
+  subgraph CORE["Salesforce Core"]
+    A["Account hierarchy + Contract"]
+    T["ETM territories"]
+    C["ACM multi-currency"]
+    Q["Cases / Inspections / Knowledge"]
+  end
+  subgraph B2B["B2B Commerce"]
+    G["Buyer Groups + Entitlements"]
+    P["Products + regional catalogs"]
+    $["Price books per currency"]
+    K["LWR checkout"]
+  end
+  subgraph OM["Order Management"]
+    O["Managed OrderSummary"]
+    F["FulfillmentOrder per DC"]
+    X["ProcessException"]
+  end
+  S1 --> A
+  S3 --> A
+  S2 --> K
+  A --> G
+  T --> A
+  C --> $
+  P --> G
+  G --> K
+  $ --> K
+  K --> O
+  O --> F
+  F --> X
+  Q --> A
+      </div>
+    </section>
+
+    <section>
+      <h2>Account model that survives 15,000 locations</h2>
+      <div class="mermaid">
+flowchart TD
+  HQ["Enterprise HQ<br/>Master Agreement / Contract / rebates"]
+  CL1["Cluster e.g. US Northeast<br/>caps parent-child skew"]
+  CL2["Cluster e.g. EMEA UK"]
+  B1["Branch Buyer Account<br/>Boston restaurant"]
+  B2["Branch Buyer Account"]
+  B3["Branch Buyer Account"]
+  M["Micro-Buyer Account"]
+  SU["Supplier Account"]
+  HQ --> CL1 --> B1
+  CL1 --> B2
+  HQ --> CL2 --> B3
+  M -.->|same WebStore, different Buyer Group| B1
+  SU -.->|not a buyer of wholesale| HQ
+      </div>
+      <p>Region is stored as indexed <code>Region_Code__c</code>. ETM assigns internal Q&amp;C and sales. Buyers never sit in territories.</p>
+    </section>
+
+    <section>
+      <h2>How a chef sees regional products in local currency</h2>
+      <div class="mermaid">
+sequenceDiagram
+  participant Chef
+  participant Store as Regional LWR WebStore
+  participant BG as Buyer Group extension
+  participant EP as Entitlement policy
+  participant PB as PricebookEntry
+  Chef->>Store: Login (Account currency EUR, region EMEA-DACH)
+  Store->>BG: Resolve groups from Region_Code + Contract
+  BG->>EP: Category entitlements for EMEA catalog
+  EP->>Store: Visible SKUs
+  Store->>PB: UnitPrice where CurrencyIsoCode = EUR
+  PB->>Chef: Catalog + EUR prices + allowed delivery methods
+      </div>
+    </section>
+
+    <section>
+      <h2>Sharing in one picture</h2>
+      <div class="grid g2">
+        <article class="card">
+          <h3>Internal</h3>
+          <p>OWD Private. Enterprise Territory Management shares Accounts by geography. Role hierarchy is organizational, not a clone of the map. Inspection and pickup records master-detail to Account so they inherit.</p>
+        </article>
+        <article class="card">
+          <h3>External store</h3>
+          <p>High Volume Community + Sharing Sets: User.AccountId = store Account. Branch manager is CC+ Super User + delegated admin <em>on that Account only</em>. Products are not shared; they are entitled.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>License stack (USD list, Sep 2026 — not a quote)</h2>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Selected SKU</th><th>Published list</th><th>FSG use</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Core</td><td>Service Cloud Advanced / Sales Cloud Core</td><td>$395 / $195 per user / month</td><td>Q&amp;C, support, account management</td></tr>
+          <tr><td>Platform</td><td>Platform Starter</td><td>$25 per user / month</td><td>Merchandisers, OM clerks</td></tr>
+          <tr><td>Commerce + OM</td><td>Commerce Cloud B2B Advanced</td><td>% of GMV — quote</td><td>10 storefronts, full OM, 20 locations included</td></tr>
+          <tr><td>Buyers</td><td>Customer Community (login)</td><td>$2 / login / month</td><td>Chefs and micro-buyers (HV sharing sets)</td></tr>
+          <tr><td>Branch managers</td><td>Customer Community Plus (member)</td><td>$15 / member / month</td><td>Delegated user admin — phased, not 150k seats</td></tr>
+          <tr><td>Suppliers</td><td>Partner Community (login)</td><td>$10 / login / month</td><td>8k farms, infrequent access</td></tr>
+          <tr><td>Security</td><td>Shield</td><td>30% of applicable net spend</td><td>Food-safety audit trail</td></tr>
+        </tbody>
+      </table>
+      <p>Experience Cloud manufacturing pages list higher CC+ / Partner prices ($35 / $50 member). Use AE confirmation. Commerce Advanced does not automatically include Experience Cloud user packs.</p>
+    </section>
+
+    <section>
+      <h2>Answers to the eleven design questions</h2>
+      <table>
+        <thead><tr><th>#</th><th>Question</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Multi-currency?</td><td>Yes, plus Advanced Currency Management. Transaction currency on Account/Cart/PBE/OrderSummary; dated rates for history and rebates.</td></tr>
+          <tr><td>2</td><td>Enterprise Territory Management?</td><td>Yes for internal coverage and inspections. No for catalog or branch isolation.</td></tr>
+          <tr><td>3</td><td>Objects?</td><td>Standard Account/Contract/Buyer/Product/WebStore/OrderSummary/Location plus custom application, certification, inspection, pickup, rebate, store profile.</td></tr>
+          <tr><td>4</td><td>Account assigned to region?</td><td>Indexed Region_Code__c + ETM rules; clusters under HQ; buyers isolated by Account not territory.</td></tr>
+          <tr><td>5</td><td>License fees?</td><td>See table above and the architecture document section 10.</td></tr>
+          <tr><td>6</td><td>Data model?</td><td>HQ → Cluster → Branch Buyer; three regional WebStores; category entitlements; managed OM.</td></tr>
+          <tr><td>7</td><td>Sharing?</td><td>Private OWD, ETM internal, Sharing Sets HV, Super User/CC+ per branch, entitlements for products.</td></tr>
+          <tr><td>8</td><td>Profiles / roles / permission sets?</td><td>One profile per license family; PSGs by persona; HV chefs; CC+ managers only.</td></tr>
+          <tr><td>9</td><td>Regional products and currency?</td><td>Buyer Group + WebStore + category entitlement; PBE in Account currency.</td></tr>
+          <tr><td>10</td><td>Store-related records?</td><td>All transactions on Branch Account; Sharing Set + Super User; effectiveAccountId.</td></tr>
+          <tr><td>11</td><td>Product setup?</td><td>One global SKU; region via catalog/inventory; pack as variations; three delivery methods; pricing extension for weight/temp/urgency/contract.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer>
+    FreshSource Global enterprise architecture · September 2026 · List prices are public Salesforce figures, not a commercial quote.
+  </footer>
+</body>
+</html>
