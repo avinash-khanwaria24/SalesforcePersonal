@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingCriteriaRules>
+        <fullName>FSG_NA_Merchandisers_PA</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>FSG NA Merchandisers Product Availability</label>
+        <sharedTo>
+            <group>FSG_NA_Merchandisers</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Region_Code__c</field>
+            <operation>equals</operation>
+            <value>NA</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>FSG_EMEA_Merchandisers_PA</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>FSG EMEA Merchandisers Product Availability</label>
+        <sharedTo>
+            <group>FSG_EMEA_Merchandisers</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Region_Code__c</field>
+            <operation>equals</operation>
+            <value>EMEA</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>FSG_APAC_Merchandisers_PA</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>FSG APAC Merchandisers Product Availability</label>
+        <sharedTo>
+            <group>FSG_APAC_Merchandisers</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Region_Code__c</field>
+            <operation>equals</operation>
+            <value>APAC</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>FSG_LATAM_Merchandisers_PA</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>FSG LATAM Merchandisers Product Availability</label>
+        <sharedTo>
+            <group>FSG_LATAM_Merchandisers</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Region_Code__c</field>
+            <operation>equals</operation>
+            <value>LATAM</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+</SharingRules>

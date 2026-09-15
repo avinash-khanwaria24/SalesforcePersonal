@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Supplier_Account__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Farm or artisan producer that supplies this product in this region.</description>
+    <label>Supplier Account</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Supplied Product Availabilities</relationshipLabel>
+    <relationshipName>Supplied_Product_Availabilities</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

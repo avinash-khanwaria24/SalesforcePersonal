@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>NA</label>
+    <protected>false</protected>
+    <values>
+        <field>Region_Code__c</field>
+        <value xsi:type="xsd:string">NA</value>
+    </values>
+    <values>
+        <field>Buyer_Group_Name__c</field>
+        <value xsi:type="xsd:string">FSG NA Buyers</value>
+    </values>
+    <values>
+        <field>Entitlement_Policy_Name__c</field>
+        <value xsi:type="xsd:string">FSG NA Entitlement</value>
+    </values>
+    <values>
+        <field>Market_Name__c</field>
+        <value xsi:type="xsd:string">FSG North America</value>
+    </values>
+    <values>
+        <field>Price_Book_Name__c</field>
+        <value xsi:type="xsd:string">FSG NA USD</value>
+    </values>
+    <values>
+        <field>Merchandising_Queue_Dev_Name__c</field>
+        <value xsi:type="xsd:string">FSG_NA_Merchandising</value>
+    </values>
+    <values>
+        <field>Public_Group_Dev_Name__c</field>
+        <value xsi:type="xsd:string">FSG_NA_Merchandisers</value>
+    </values>
+</CustomMetadata>

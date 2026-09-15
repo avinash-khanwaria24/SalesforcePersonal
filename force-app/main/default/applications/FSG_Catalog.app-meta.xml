@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#2E844A</headerColor>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <description>FSG catalog operations for merchandisers and catalog administrators.</description>
+    <formFactors>Large</formFactors>
+    <formFactors>Small</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>FSG Catalog</label>
+    <navType>Standard</navType>
+    <tabs>standard-home</tabs>
+    <tabs>standard-Product2</tabs>
+    <tabs>standard-Account</tabs>
+    <tabs>standard-Case</tabs>
+    <tabs>Region__c</tabs>
+    <tabs>Product_Availability__c</tabs>
+    <tabs>Supplier_Product__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>

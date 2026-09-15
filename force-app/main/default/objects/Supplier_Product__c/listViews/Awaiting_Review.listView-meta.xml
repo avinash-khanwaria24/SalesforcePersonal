@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Awaiting_Review</fullName>
+    <columns>NAME</columns>
+    <columns>SKU__c</columns>
+    <columns>Supplier_Account__c</columns>
+    <columns>Region__c</columns>
+    <columns>Region_Code__c</columns>
+    <columns>Status__c</columns>
+    <columns>Onboarding_Case__c</columns>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Submitted,In Review</value>
+    </filters>
+    <filterScope>Everything</filterScope>
+    <label>Awaiting Review</label>
+</ListView>
