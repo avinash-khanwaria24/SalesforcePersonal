@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FSG Integration System Landscape — Core Cloud · Experience Cloud · Entry Points · ESB</title>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      securityLevel: "strict",
+      themeVariables: {
+        primaryColor: "#0E3A2F",
+        primaryTextColor: "#F4F1EA",
+        primaryBorderColor: "#C6A667",
+        lineColor: "#5C6B66",
+        secondaryColor: "#1F5A48",
+        tertiaryColor: "#E8E1D1",
+        fontFamily: "Georgia, 'Times New Roman', serif"
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --ink: #14221C;
+      --muted: #4E5C56;
+      --paper: #F6F1E6;
+      --card: #FFFcf7;
+      --line: #D9D0BE;
+      --gold: #C6A667;
+      --pine: #0E3A2F;
+      --pine-2: #1F5A48;
+      --core: #0E3A2F;
+      --xc: #1F4E79;
+      --esb: #6B3F1D;
+      --entry: #3D5A3D;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    header {
+      background: var(--pine);
+      color: #F4F1EA;
+      padding: 2.5rem 8vw 2rem;
+    }
+    header p { color: #D4C7A6; max-width: 78ch; }
+    h1, h2, h3 { font-family: Georgia, serif; font-weight: 600; }
+    h1 { margin: 0 0 0.4rem; font-size: 2.05rem; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.2rem;
+    }
+    nav a {
+      color: #0E3A2F;
+      background: #C6A667;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.7rem;
+      border-radius: 2px;
+    }
+    main { padding: 2rem 8vw 4rem; }
+    section { margin: 2.5rem 0; }
+    .kicker { letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.72rem; color: var(--gold); font-weight: 700; }
+    .grid { display: grid; gap: 1rem; }
+    .g4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .g3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--gold);
+      padding: 1rem 1.1rem;
+    }
+    .card.core { border-top-color: var(--core); }
+    .card.xc { border-top-color: var(--xc); }
+    .card.esb { border-top-color: var(--esb); }
+    .card.entry { border-top-color: var(--entry); }
+    .card h3 { margin: 0.2rem 0 0.5rem; font-size: 1.05rem; }
+    .card p, .card li { color: var(--muted); font-size: 0.92rem; }
+    .pill {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+    table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 0.86rem; }
+    th, td { border: 1px solid var(--line); padding: 0.5rem 0.65rem; text-align: left; vertical-align: top; }
+    th { background: var(--pine); color: #F4F1EA; }
+    .mermaid { background: var(--card); padding: 1rem; border: 1px solid var(--line); overflow-x: auto; }
+    footer { padding: 1.5rem 8vw; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
+    code { font-size: 0.86em; }
+    .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: var(--muted); margin: 0.6rem 0 1rem; }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 0.75rem;
+      height: 0.75rem;
+      margin-right: 0.35rem;
+      vertical-align: -1px;
+    }
+    .legend .l-core::before { background: var(--core); }
+    .legend .l-xc::before { background: var(--xc); }
+    .legend .l-esb::before { background: var(--esb); }
+    .legend .l-entry::before { background: var(--entry); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="kicker">FreshSource Global · Integration architecture</div>
+    <h1>Integration system landscape</h1>
+    <p>
+      Salesforce Core Cloud is the operational hub. Experience Cloud is the digital front door,
+      with Google, Apple, and LinkedIn logins for micro-buyers. Every record has a named data entry point.
+      Every engine of record is reached only through MuleSoft ESB layers.
+    </p>
+    <nav>
+      <a href="#highlights">Four highlights</a>
+      <a href="#landscape">Landscape</a>
+      <a href="#core">Core Cloud</a>
+      <a href="#experience">Experience Cloud</a>
+      <a href="#entry">Data entry points</a>
+      <a href="#esb">ESB layers</a>
+      <a href="#matrix">Integration matrix</a>
+    </nav>
+  </header>
+  <main>
+    <section id="highlights">
+      <h2>Four landscape highlights</h2>
+      <div class="grid g4">
+        <article class="card core">
+          <div class="pill">1 · Core Cloud</div>
+          <h3>Salesforce Core Cloud</h3>
+          <p>Sales + Service + B2B Commerce + Order Management + Agentforce on one Hyperforce org. Parties, contracts, hot orders, cases. Not the financial ledger, not bin inventory, not raw IoT.</p>
+        </article>
+        <article class="card xc">
+          <div class="pill">2 · Experience Cloud</div>
+          <h3>LWR + social logins</h3>
+          <p>FSG Market (NA / LATAM / EMEA), Grower Network, Corporate Onboarding. Micro-buyers: <strong>Google, Apple, LinkedIn</strong> OIDC. Staff: Okta SAML. Farms: password after Q&amp;C vetting.</p>
+        </article>
+        <article class="card entry">
+          <div class="pill">3 · Entry points</div>
+          <h3>26 named doors</h3>
+          <p>Guest apply, social register, corporate self-reg, checkout, tickets, voice/email/messaging, internal consoles, Okta SCIM, and ESB inbound from WMS, SAP, GFSR, IoT, SDPE, DocuSign, tax/pay, PIM.</p>
+        </article>
+        <article class="card esb">
+          <div class="pill">4 · ESB</div>
+          <h3>All integrations via MuleSoft</h3>
+          <p>Experience APIs → Process APIs (circuit breaker, cache, regional close) → System APIs (SAP, WMS, SDPE, GFSR, IoT). No point-to-point Named Credentials from Apex to engines.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="landscape">
+      <h2>End-to-end landscape</h2>
+      <div class="legend">
+        <span class="l-entry">Data entry</span>
+        <span class="l-xc">Experience Cloud</span>
+        <span class="l-core">Salesforce Core Cloud</span>
+        <span class="l-esb">ESB layers</span>
+      </div>
+      <div class="mermaid">
+flowchart TB
+  subgraph Entry["DATA ENTRY POINTS"]
+    GUEST[Guest apply / register]
+    PORTAL[Authenticated portals]
+    CH[Voice / Email / Messaging]
+    STAFF[Internal Lightning]
+  end
+
+  subgraph IdP["IDENTITY PLANE"]
+    SOCIAL["Google / Apple / LinkedIn"]
+    OKTA[Okta SAML + SCIM]
+  end
+
+  subgraph XC["EXPERIENCE CLOUD LWR"]
+    MARKET[FSG Market NA LATAM EMEA]
+    GROWER[FSG Grower Network]
+    ONB[Corporate Onboarding]
+  end
+
+  subgraph CORE["SALESFORCE CORE CLOUD"]
+    SALES[Sales Cloud]
+    SVC[Service Cloud]
+    COM[B2B Commerce]
+    OM[Order Management]
+    AF[Agentforce]
+    EVT[CDC + Platform Events]
+    CONN[Salesforce Connect]
+  end
+
+  subgraph ESB["ESB MULESOFT"]
+    XP[Experience APIs]
+    PR[Process APIs]
+    SYS[System APIs]
+  end
+
+  subgraph SoR["ENGINES OF RECORD"]
+    SAP[SAP S/4HANA]
+    WMS[WMS / TMS]
+    SDPE[SDPE]
+    REG[Food Safety Registry]
+    IOT[IoT]
+    SIGN[DocuSign]
+  end
+
+  SOCIAL --> MARKET
+  OKTA --> CORE
+  GUEST --> XC
+  PORTAL --> XC
+  CH --> AF
+  STAFF --> CORE
+  XC --> CORE
+  COM --> XP
+  AF --> XP
+  EVT --> XP
+  CONN --> SAP
+  XP --> PR
+  PR --> SYS
+  SYS --> SAP
+  SYS --> WMS
+  SYS --> SDPE
+  SYS --> REG
+  SYS --> IOT
+  SYS --> SIGN
+  SYS --> CORE
+      </div>
+    </section>
+
+    <section id="core">
+      <h2>Salesforce Core Cloud</h2>
+      <div class="grid g3">
+        <article class="card core"><h3>Sales Cloud</h3><p>Account / Contact / ACR party model. HQ → Cluster → Branch. Master Agreement on Contract. Opportunity for new logo only — not on the 50k/day path.</p></article>
+        <article class="card core"><h3>Service Cloud</h3><p>Case SoR, Entitlements (2-hour enterprise SLA), Omni-Channel skills + capacity, Knowledge grounding for Agentforce.</p></article>
+        <article class="card core"><h3>B2B Commerce</h3><p>Three WebStores, Buyer Groups, cart, checkout. Pricing and inventory extensions call Experience APIs — not Apex-to-engine.</p></article>
+        <article class="card core"><h3>Order Management</h3><p>OrderSummary / FulfillmentOrder after Place Order. Splits follow WMS allocation written back through the ESB.</p></article>
+        <article class="card core"><h3>Platform events</h3><p>High-volume <code>Order_Submitted__e</code> and CDC on lots/orders. ESB consumes Pub/Sub API. IoT pings never land here.</p></article>
+        <article class="card core"><h3>Connect + Data Cloud</h3><p>Invoices/payouts virtualized from SAP. Data Cloud holds unified profile and archive. Named Credentials target MuleSoft only.</p></article>
+      </div>
+    </section>
+
+    <section id="experience">
+      <h2>Experience Cloud — social media logins available</h2>
+      <div class="grid g2">
+        <article class="card xc">
+          <h3>Sites</h3>
+          <ul>
+            <li><strong>FSG Market</strong> — LWR + B2B, chefs and micro-buyers, regional stores.</li>
+            <li><strong>FSG Grower Network</strong> — guest apply, then Partner users after Q&amp;C.</li>
+            <li><strong>Corporate Onboarding</strong> — domain-validated chef self-registration onto a branch Account.</li>
+          </ul>
+        </article>
+        <article class="card xc">
+          <h3>Who uses which login</h3>
+          <ul>
+            <li><strong>Micro-buyers:</strong> Google, Apple, LinkedIn OIDC + optional password. Registration Handler; enterprise domains rejected.</li>
+            <li><strong>Enterprise chefs:</strong> password + MFA, or customer IdP SAML (phase 2). No social buttons.</li>
+            <li><strong>Farms:</strong> password after enable-as-partner. No guest User, no social.</li>
+            <li><strong>FSG staff:</strong> Okta SAML 2.0 + SCIM into Core Cloud. Not Experience Cloud.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="mermaid">
+sequenceDiagram
+  actor Buyer as Micro-buyer
+  participant Site as FSG Market
+  participant AP as Auth Provider
+  participant IdP as Google Apple LinkedIn
+  participant Core as Salesforce Core Cloud
+  Buyer->>Site: Continue with social
+  Site->>AP: OIDC
+  AP->>IdP: Consent
+  IdP-->>AP: Verified email
+  AP->>Core: Registration Handler
+  alt Existing user
+    Core->>Core: Link ThirdPartyAccountLink
+  else New micro-buyer
+    Core->>Core: Shell Account pending tax ID
+  else Enterprise domain
+    Core-->>Site: Reject — use corporate path
+  end
+      </div>
+    </section>
+
+    <section id="entry">
+      <h2>All data entry points</h2>
+      <p style="color:var(--muted);max-width:80ch;">Every create/update of a Core Cloud record has a named door. Machine paths enter only through the ESB.</p>
+      <div class="grid g3">
+        <article class="card entry"><h3>A · Experience Cloud</h3><p>E1 guest farm apply. E2 social/password micro-register. E3 corporate self-reg. E4 branch delegated admin. E5 checkout. E6 supplier catalog/PO/certs. E7 spoilage ticket. E8 authenticated chat.</p></article>
+        <article class="card entry"><h3>B · Service channels</h3><p>E9 voice (PSTN / Amazon Connect / Salesforce Voice). E10 Email-to-Case. E11 WhatsApp / SMS / Enhanced Messaging. Always a Case. Agentforce first; Omni overflow.</p></article>
+        <article class="card entry"><h3>C · Internal consoles</h3><p>E12 sell Master Agreement. E13 Q&amp;C inspection. E14 merchandiser publish. E15 fulfillment director re-allocate. E16 agent Case work. Okta SSO only.</p></article>
+        <article class="card entry"><h3>D · Identity plane</h3><p>E17 Okta SCIM joiner-mover-leaver (not ESB). E18 social OIDC JIT + <code>ThirdPartyAccountLink</code>. JIT SAML for staff is forbidden.</p></article>
+        <article class="card entry"><h3>E · ESB inbound</h3><p>E19 WMS allocation/ATP. E20 SAP invoice/payout/rebate. E21 GFSR lot status. E22 IoT excursion. E23 SDPE snapshot. E24 DocuSign. E25 tax/pay. E26 PIM catalog.</p></article>
+        <article class="card entry"><h3>Closed doors</h3><p>No guest Case create. No guest pricing. No browser callout to SAP/SDPE/WMS/GFSR. No raw IoT rows. No point-to-point Apex.</p></article>
+      </div>
+    </section>
+
+    <section id="esb">
+      <h2>All integrations through ESB layers</h2>
+      <div class="mermaid">
+flowchart LR
+  SF[Salesforce Core] --> XP[Experience APIs]
+  XP --> PR[Process APIs]
+  PR --> SYS[System APIs]
+  SYS --> SAP[SAP S/4HANA]
+  SYS --> WMS[WMS / TMS]
+  SYS --> SDPE[SDPE]
+  SYS --> REG[GFSR]
+  SYS --> IOT[IoT]
+  SYS --> SIGN[DocuSign]
+  SYS --> TAX[Tax / Pay]
+  SYS --> PIM[PIM]
+  SYS --> SF
+      </div>
+      <div class="grid g3" style="margin-top:1rem;">
+        <article class="card esb"><h3>Experience APIs</h3><p><code>xp-checkout-pricing</code> · <code>xp-buyer-portal</code> · <code>xp-agent-assist</code> · <code>xp-supplier-portal</code>. The only URLs Salesforce Named Credentials are allowed to call.</p></article>
+        <article class="card esb"><h3>Process APIs</h3><p>Pricing circuit breaker + Redis + snapshot. Order allocate/split/PO fan-out. Traceability. Regional EOD ERP close. Cold-chain exceptions. Catalog/tax/pay master.</p></article>
+        <article class="card esb"><h3>System APIs</h3><p>One API per engine: SAP, WMS, SDPE, GFSR, IoT, DocuSign, tax/pay, PIM, plus <code>sys-salesforce</code> (Composite, Bulk 2.0, Pub/Sub). Secrets never leave Anypoint.</p></article>
+      </div>
+    </section>
+
+    <section id="matrix">
+      <h2>Integration matrix</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Flow</th>
+            <th>Pattern</th>
+            <th>ESB path</th>
+            <th>Failure mode</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>SDPE price overlay</td><td>Request-Reply + cache</td><td>xp-checkout-pricing → pr-pricing → sys-sdpe</td><td>Circuit open → contract / snapshot; checkout continues</td></tr>
+          <tr><td>WMS allocation</td><td>PE then Request-Reply</td><td>Order_Submitted__e → pr-order-orchestrate → sys-wms-tms</td><td>Pending_Allocation → Case to Director</td></tr>
+          <tr><td>ATP cache</td><td>1–5 min refresh</td><td>xp-checkout-pricing → sys-wms-tms</td><td>Show “updating”; safety stock</td></tr>
+          <tr><td>SAP orders / close</td><td>CDC + regional EOD batch</td><td>pr-erp-close → sys-sap-s4</td><td>Idempotent External Id; recon queue</td></tr>
+          <tr><td>Invoices / payouts</td><td>Virtualize OData 4.01</td><td>Connect / sys-sap-s4</td><td>Empty state if finance down</td></tr>
+          <tr><td>GFSR lots</td><td>CDC + on-demand + webhook</td><td>pr-traceability → sys-gfsr</td><td>Quarantine lot; block cross-border pick</td></tr>
+          <tr><td>IoT excursion</td><td>Event filter</td><td>pr-coldchain-incident → sys-iot</td><td>Case only — never raw pings</td></tr>
+          <tr><td>Agent actions</td><td>Request-Reply</td><td>xp-agent-assist</td><td>Escalate to Omni-Channel</td></tr>
+          <tr><td>DocuSign</td><td>Request-Reply</td><td>sys-docusign</td><td>Manual Files upload</td></tr>
+          <tr><td>Social login</td><td>OIDC Auth Provider</td><td>Identity plane — not ESB</td><td>Password fallback; enterprise domains rejected</td></tr>
+          <tr><td>Staff SSO</td><td>SAML 2.0 + SCIM</td><td>Identity plane — not ESB</td><td>Deny invalid assertion; deactivate on group removal</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer>
+    Narrative: <code>docs/integration-landscape/FSG_INTEGRATION_SYSTEM_LANDSCAPE.md</code>.
+    Synthesized from existing FSG architecture packs in this repository. Not a Salesforce quote and not deployable metadata.
+  </footer>
+</body>
+</html>
