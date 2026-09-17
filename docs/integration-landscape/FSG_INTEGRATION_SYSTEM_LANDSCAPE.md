@@ -19,77 +19,76 @@ Capability-level object models, sharing, and licenses remain in the source packs
 ## 1. Landscape at a glance
 
 ```mermaid
-flowchart TB
-  subgraph Entry["DATA ENTRY POINTS"]
-    direction LR
+flowchart LR
+  subgraph EP["1 · Data entry points"]
+    direction TB
     GUEST[Guest apply / register]
     PORTAL[Authenticated portals]
     CH[Voice / Email / Messaging]
-    STAFF[Internal Lightning consoles]
+    STAFF[Internal Lightning]
   end
 
-  subgraph IdP["IDENTITY PLANE — not ESB"]
+  subgraph ID["2 · Identity plane — not ESB"]
+    direction TB
     SOCIAL[Google / Apple / LinkedIn OIDC]
     OKTA[Okta SAML 2.0 + SCIM]
-    CORP[Enterprise customer IdP — phase 2]
+    CORP[Enterprise customer IdP]
   end
 
-  subgraph XC["EXPERIENCE CLOUD LWR"]
-    MARKET[FSG Market<br/>NA · LATAM · EMEA WebStores]
-    GROWER[FSG Grower Network]
+  subgraph XC["3 · Experience Cloud LWR"]
+    direction TB
+    MARKET[FSG Market]
+    GROWER[Grower Network]
     ONB[Corporate Onboarding]
   end
 
-  subgraph CORE["SALESFORCE CORE CLOUD"]
-    SALES[Sales Cloud<br/>Account Contact Contract]
-    SVC[Service Cloud<br/>Case Entitlement Omni]
-    COM[B2B Commerce<br/>Catalog Cart Checkout]
-    OM[Order Management<br/>OrderSummary Fulfillment]
-    AF[Agentforce + Voice]
-    EVT[CDC · Platform Events]
-    CONN[Salesforce Connect]
-    DC[Data Cloud]
+  subgraph CORE["4 · Salesforce Core Cloud"]
+    direction TB
+    SALES[Sales Cloud]
+    SVC[Service Cloud]
+    COM[B2B Commerce]
+    OM[Order Management]
+    AF[Agentforce]
   end
 
-  subgraph ESB["ESB — MuleSoft Anypoint"]
+  subgraph ESB["5 · ESB MuleSoft"]
+    direction TB
     XP[Experience APIs]
-    PR[Process APIs<br/>circuit breaker · cache · orchestrate]
+    PR[Process APIs]
     SYS[System APIs]
   end
 
-  subgraph SoR["SYSTEMS OF RECORD / ENGINES"]
+  subgraph SOR["6 · Engines of record"]
+    direction TB
     SAP[SAP S/4HANA]
     WMS[WMS / TMS / EWM]
     SDPE[SDPE]
     REG[Food Safety Registry]
     IOT[IoT cold-chain]
     SIGN[DocuSign]
-    TAX[Tax + Payments]
   end
 
+  GUEST --> GROWER
+  PORTAL --> MARKET
+  PORTAL --> ONB
   SOCIAL --> MARKET
   CORP --> MARKET
-  OKTA --> CORE
-  GUEST --> XC
-  PORTAL --> XC
+  OKTA --> SALES
   CH --> AF
-  STAFF --> CORE
-  XC --> CORE
+  STAFF --> SALES
+  MARKET --> COM
+  GROWER --> SALES
+  ONB --> SALES
   COM --> XP
-  AF --> XP
   SVC --> XP
-  EVT --> XP
-  CONN --> SAP
-  XP --> PR
-  PR --> SYS
+  AF --> XP
+  XP --> PR --> SYS
   SYS --> SAP
   SYS --> WMS
   SYS --> SDPE
   SYS --> REG
   SYS --> IOT
   SYS --> SIGN
-  SYS --> TAX
-  SYS -->|write-back Composite / Bulk / PE| CORE
 ```
 
 ### What each plane owns

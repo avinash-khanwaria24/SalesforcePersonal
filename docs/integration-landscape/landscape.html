@@ -10,14 +10,26 @@
       startOnLoad: true,
       theme: "base",
       securityLevel: "strict",
+      flowchart: { htmlLabels: true, curve: "linear", padding: 12 },
+      sequence: { mirrorActors: false, actorMargin: 64, messageMargin: 36 },
       themeVariables: {
         primaryColor: "#0E3A2F",
         primaryTextColor: "#F4F1EA",
         primaryBorderColor: "#C6A667",
-        lineColor: "#5C6B66",
+        lineColor: "#3D4A45",
         secondaryColor: "#1F5A48",
         tertiaryColor: "#E8E1D1",
-        fontFamily: "Georgia, 'Times New Roman', serif"
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        signalColor: "#14221C",
+        signalTextColor: "#14221C",
+        labelTextColor: "#14221C",
+        loopTextColor: "#14221C",
+        noteTextColor: "#14221C",
+        noteBkgColor: "#E8E1D1",
+        actorBkg: "#0E3A2F",
+        actorTextColor: "#F4F1EA",
+        actorBorder: "#C6A667",
+        actorLineColor: "#5C6B66"
       }
     });
   </script>
@@ -101,6 +113,10 @@
     th, td { border: 1px solid var(--line); padding: 0.5rem 0.65rem; text-align: left; vertical-align: top; }
     th { background: var(--pine); color: #F4F1EA; }
     .mermaid { background: var(--card); padding: 1rem; border: 1px solid var(--line); overflow-x: auto; }
+    .mermaid .messageText,
+    .mermaid .labelText,
+    .mermaid .loopText,
+    .mermaid .noteText { fill: #14221C !important; }
     footer { padding: 1.5rem 8vw; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
     code { font-size: 0.86em; }
     .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: var(--muted); margin: 0.6rem 0 1rem; }
@@ -173,42 +189,46 @@
         <span class="l-esb">ESB layers</span>
       </div>
       <div class="mermaid">
-flowchart TB
-  subgraph Entry["DATA ENTRY POINTS"]
+flowchart LR
+  subgraph EP["1 · Data entry points"]
+    direction TB
     GUEST[Guest apply / register]
     PORTAL[Authenticated portals]
     CH[Voice / Email / Messaging]
     STAFF[Internal Lightning]
   end
 
-  subgraph IdP["IDENTITY PLANE"]
-    SOCIAL["Google / Apple / LinkedIn"]
+  subgraph ID["2 · Identity plane"]
+    direction TB
+    SOCIAL[Google / Apple / LinkedIn]
     OKTA[Okta SAML + SCIM]
   end
 
-  subgraph XC["EXPERIENCE CLOUD LWR"]
-    MARKET[FSG Market NA LATAM EMEA]
-    GROWER[FSG Grower Network]
+  subgraph XC["3 · Experience Cloud LWR"]
+    direction TB
+    MARKET[FSG Market]
+    GROWER[Grower Network]
     ONB[Corporate Onboarding]
   end
 
-  subgraph CORE["SALESFORCE CORE CLOUD"]
+  subgraph CORE["4 · Salesforce Core Cloud"]
+    direction TB
     SALES[Sales Cloud]
     SVC[Service Cloud]
     COM[B2B Commerce]
     OM[Order Management]
     AF[Agentforce]
-    EVT[CDC + Platform Events]
-    CONN[Salesforce Connect]
   end
 
-  subgraph ESB["ESB MULESOFT"]
+  subgraph ESB["5 · ESB MuleSoft"]
+    direction TB
     XP[Experience APIs]
     PR[Process APIs]
     SYS[System APIs]
   end
 
-  subgraph SoR["ENGINES OF RECORD"]
+  subgraph SOR["6 · Engines of record"]
+    direction TB
     SAP[SAP S/4HANA]
     WMS[WMS / TMS]
     SDPE[SDPE]
@@ -217,26 +237,26 @@ flowchart TB
     SIGN[DocuSign]
   end
 
+  GUEST --> GROWER
+  PORTAL --> MARKET
+  PORTAL --> ONB
   SOCIAL --> MARKET
-  OKTA --> CORE
-  GUEST --> XC
-  PORTAL --> XC
+  OKTA --> SALES
   CH --> AF
-  STAFF --> CORE
-  XC --> CORE
+  STAFF --> SALES
+  MARKET --> COM
+  GROWER --> SALES
+  ONB --> SALES
   COM --> XP
+  SVC --> XP
   AF --> XP
-  EVT --> XP
-  CONN --> SAP
-  XP --> PR
-  PR --> SYS
+  XP --> PR --> SYS
   SYS --> SAP
   SYS --> WMS
   SYS --> SDPE
   SYS --> REG
   SYS --> IOT
   SYS --> SIGN
-  SYS --> CORE
       </div>
     </section>
 
