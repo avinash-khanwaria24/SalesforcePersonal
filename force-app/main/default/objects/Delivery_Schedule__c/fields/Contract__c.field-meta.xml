@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contract__c</fullName>
+    <description>Customer contract this schedule is attached to.</description>
+    <label>Contract</label>
+    <referenceTo>Contract</referenceTo>
+    <relationshipLabel>Delivery Schedules</relationshipLabel>
+    <relationshipName>Delivery_Schedules</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

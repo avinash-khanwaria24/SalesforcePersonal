@@ -1,0 +1,11 @@
+.sfdx/
+.sf/
+.localdevserver/
+.vscode/
+.idea/
+*.iml
+.history/
+node_modules/
+.DS_Store
+illuminatedCloud/
+/coverage/

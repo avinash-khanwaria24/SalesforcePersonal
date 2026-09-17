@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Entitlement__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Entitlement this commitment process implements.</description>
+    <label>Entitlement</label>
+    <referenceTo>Entitlement</referenceTo>
+    <relationshipLabel>Commitment Processes</relationshipLabel>
+    <relationshipName>Commitment_Processes</relationshipName>
+    <required>true</required>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>
