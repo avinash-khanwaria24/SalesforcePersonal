@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Max_Gte_Min</fullName>
+    <active>true</active>
+    <errorConditionFormula>NOT(ISBLANK(Max_Quantity__c)) &amp;&amp; Max_Quantity__c &lt; Min_Quantity__c</errorConditionFormula>
+    <errorDisplayField>Max_Quantity__c</errorDisplayField>
+    <errorMessage>Max Quantity must be greater than or equal to Min Quantity.</errorMessage>
+</ValidationRule>

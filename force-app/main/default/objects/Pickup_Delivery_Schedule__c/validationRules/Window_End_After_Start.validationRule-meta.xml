@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Window_End_After_Start</fullName>
+    <active>true</active>
+    <errorConditionFormula>Window_End__c &lt;= Window_Start__c</errorConditionFormula>
+    <errorDisplayField>Window_End__c</errorDisplayField>
+    <errorMessage>Window End must be after Window Start.</errorMessage>
+</ValidationRule>

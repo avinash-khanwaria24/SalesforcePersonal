@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Supplier_Catalogue__c</fullName>
+    <description>Parent catalogue for this item.</description>
+    <label>Supplier Catalogue</label>
+    <referenceTo>Supplier_Catalogue__c</referenceTo>
+    <relationshipLabel>Catalogue Items</relationshipLabel>
+    <relationshipName>Catalogue_Items</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

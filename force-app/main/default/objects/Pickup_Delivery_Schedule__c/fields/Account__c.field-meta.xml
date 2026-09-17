@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Account__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Account this standing schedule applies to.</description>
+    <label>Account</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Pickup Delivery Schedules</relationshipLabel>
+    <relationshipName>Pickup_Delivery_Schedules</relationshipName>
+    <required>true</required>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contract__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Optional link from the service Entitlement to the commercial Contract.</description>
+    <label>Sales Contract</label>
+    <referenceTo>Contract</referenceTo>
+    <relationshipLabel>Entitlements</relationshipLabel>
+    <relationshipName>Entitlements</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

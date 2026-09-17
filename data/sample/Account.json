@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "attributes": { "type": "Account", "referenceId": "SupplierAcme" },
+      "Name": "Acme Fresh Produce Ltd",
+      "Account_Type__c": "Supplier",
+      "Supplier_Status__c": "Active",
+      "Customer_Status__c": "Not Applicable",
+      "BillingCity": "Manchester",
+      "BillingCountry": "United Kingdom"
+    },
+    {
+      "attributes": { "type": "Account", "referenceId": "CustomerNorth" },
+      "Name": "Northwind Grocery Group",
+      "Account_Type__c": "Customer",
+      "Supplier_Status__c": "Not Applicable",
+      "Customer_Status__c": "Active",
+      "BillingCity": "Leeds",
+      "BillingCountry": "United Kingdom"
+    }
+  ]
+}

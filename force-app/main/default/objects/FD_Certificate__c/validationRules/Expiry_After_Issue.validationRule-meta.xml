@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Expiry_After_Issue</fullName>
+    <active>true</active>
+    <errorConditionFormula>Expiry_Date__c &lt; Issue_Date__c</errorConditionFormula>
+    <errorDisplayField>Expiry_Date__c</errorDisplayField>
+    <errorMessage>Expiry Date must be on or after Issue Date.</errorMessage>
+</ValidationRule>

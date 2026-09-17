@@ -1,0 +1,18 @@
+{
+  "records": [
+    {
+      "attributes": { "type": "Contact", "referenceId": "BuyerPatel" },
+      "FirstName": "Priya",
+      "LastName": "Patel",
+      "Email": "priya.patel@northwind.example",
+      "AccountId": "@CustomerNorth"
+    },
+    {
+      "attributes": { "type": "Contact", "referenceId": "SupplierKhan" },
+      "FirstName": "Imran",
+      "LastName": "Khan",
+      "Email": "imran.khan@acmefresh.example",
+      "AccountId": "@SupplierAcme"
+    }
+  ]
+}
