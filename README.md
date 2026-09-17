@@ -6,9 +6,5 @@ Salesforce architecture designs and implementation notes.
 
 Internal staff identity is mastered in Okta. Salesforce is the service provider.
 
-See [docs/identity-user-lifecycle-okta-salesforce.md](docs/identity-user-lifecycle-okta-salesforce.md) for the full design:
-
-- SAML 2.0 SSO (Okta IdP, Salesforce SP)
-- Automated provision / de-provision from Okta directory groups
-- Thin profiles + permission set groups
-- MFA signaling, break-glass, and operating model
+- [Identity & user lifecycle design](docs/identity-user-lifecycle-okta-salesforce.md) — SSO, group-driven provision/de-provision, MFA, operating model
+- [Architecture and object data model](docs/architecture-and-object-data-model.md) — logical/physical architecture, Salesforce + Okta ERD, attribute contract

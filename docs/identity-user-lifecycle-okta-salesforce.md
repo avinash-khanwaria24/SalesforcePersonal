@@ -10,6 +10,8 @@
 | Okta role | Identity Provider (IdP), source of truth for identity and group membership |
 | Standards | SAML 2.0 (authentication), OAuth 2.0 + REST (lifecycle provisioning) |
 
+Architecture diagrams, ERDs, and the field-level object model: [`architecture-and-object-data-model.md`](architecture-and-object-data-model.md).
+
 ---
 
 ## 1. Requirement interpretation
