@@ -24,7 +24,6 @@ flowchart LR
     direction TB
     GUEST[Guest apply / register]
     PORTAL[Authenticated portals]
-    CH[Voice / Email / Messaging]
     STAFF[Internal Lightning]
   end
 
@@ -48,7 +47,6 @@ flowchart LR
     SVC[Service Cloud]
     COM[B2B Commerce]
     OM[Order Management]
-    AF[Agentforce]
   end
 
   subgraph ESB["5 · ESB MuleSoft"]
@@ -74,14 +72,12 @@ flowchart LR
   SOCIAL --> MARKET
   CORP --> MARKET
   OKTA --> SALES
-  CH --> AF
   STAFF --> SALES
   MARKET --> COM
   GROWER --> SALES
   ONB --> SALES
   COM --> XP
   SVC --> XP
-  AF --> XP
   XP --> PR --> SYS
   SYS --> SAP
   SYS --> WMS
