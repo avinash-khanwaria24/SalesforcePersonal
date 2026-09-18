@@ -81,6 +81,8 @@ def main() -> int:
     for needle in required_guide:
         check(needle in guide_src, f"guide missing required topic: {needle}")
 
+    simulate_bypass_service()
+
     if FAILURES:
         print("VALIDATION FAILED")
         for item in FAILURES:
@@ -89,6 +91,33 @@ def main() -> int:
 
     print(f"OK: parsed {len(xml_files)} XML files; guide and bypass reference look complete.")
     return 0
+
+
+def is_bypassed(trigger_name: str, bypass_all: bool, disabled_names: set[str]) -> bool:
+    """Mirror of TriggerBypassService.isBypassed for contract checks."""
+    if trigger_name is None or not str(trigger_name).strip():
+        return False
+    if bypass_all:
+        return True
+    return trigger_name in disabled_names
+
+
+def simulate_bypass_service() -> None:
+    cases = [
+        ("null name", None, False, set(), False),
+        ("blank name", "", False, set(), False),
+        ("unknown trigger", "DoesNotExist", False, set(), False),
+        ("hierarchy bypass named", "AccountTriggerBypassExample", True, set(), True),
+        ("hierarchy bypass other", "AnyOtherTrigger", True, set(), True),
+        ("cmdt named disabled", "AccountTriggerBypassExample", False, {"AccountTriggerBypassExample"}, True),
+        ("cmdt other remains on", "SomeOtherTrigger", False, {"AccountTriggerBypassExample"}, False),
+        ("no flags", "AccountTriggerBypassExample", False, set(), False),
+    ]
+    print("Bypass contract:")
+    for label, name, bypass_all, disabled, expected in cases:
+        actual = is_bypassed(name, bypass_all, disabled)
+        print(f"  {label}: expected={expected} actual={actual}")
+        check(actual is expected, f"{label}: expected {expected}, got {actual}")
 
 
 if __name__ == "__main__":
