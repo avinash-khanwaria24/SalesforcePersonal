@@ -80,6 +80,10 @@ def main() -> int:
         "cannot be deactivated using Tooling API",
         "ApexTriggerMember",
         "ContainerAsyncRequest",
+        "ValidationRule",
+        "FlowDefinition",
+        "activeVersionNumber",
+        "Metadata.active",
     ]
     for needle in required_guide:
         check(needle in guide_src, f"guide missing required topic: {needle}")

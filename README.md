@@ -8,4 +8,6 @@ SF Switch cannot always deactivate Apex triggers. Salesforce returns `INSUFFICIE
 
 Resolution guide: [`docs/sf-switch-deactivate-trigger-cross-reference.md`](docs/sf-switch-deactivate-trigger-cross-reference.md)
 
+Tooling API can toggle **validation rules** (`ValidationRule.Metadata.active`) and **flows** (`FlowDefinition.Metadata.activeVersionNumber`). It cannot deactivate **Apex triggers**.
+
 Runtime bypass (preferred over flipping trigger `Status`): `TriggerBypassService` in `force-app/main/default/classes/`.

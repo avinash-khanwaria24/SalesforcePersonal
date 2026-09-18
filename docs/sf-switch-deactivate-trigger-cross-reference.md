@@ -46,6 +46,79 @@ Tooling API is fine for **reading** trigger rows (`SELECT Id, Name, Status, Name
 
 Workbench “Update” on the `ApexTrigger` sObject is the same unsupported Tooling/SOAP update and produces the same cross-reference error.
 
+## Can Tooling API enable/disable validation rules and flows?
+
+**Yes — unlike Apex triggers.** Validation rules and Flow Builder / Process Builder flows are setup metadata, not compiled Apex, so Tooling API can flip them in sandbox **and** production without `RunLocalTests`.
+
+That is why SF Switch can toggle validation rules and flows when trigger deactivation fails: those types are not an Apex deploy.
+
+| Metadata | Tooling API toggle? | Object and field | Production Apex tests? |
+| --- | --- | --- | --- |
+| Apex trigger | **No** | `ApexTrigger.Status` is not a supported write | Deploy always runs tests |
+| Validation rule | **Yes** | `ValidationRule` → `Metadata.active` | No |
+| Flow / Process Builder | **Yes** | `FlowDefinition` → `Metadata.activeVersionNumber` | No |
+
+Packaged (namespaced / `ManageableState = installed`) components are still often locked. Tooling API does not bypass package ownership.
+
+### Validation rules
+
+PATCH the Tooling `ValidationRule` record. You cannot send only `Active`. Salesforce requires the `Metadata` blob, including the existing formula and error message.
+
+1. Query one rule at a time (the `Metadata` field cannot be queried in a list):
+
+```sql
+SELECT Id, ValidationName, EntityDefinitionId, Active, ManageableState, NamespacePrefix, FullName, Metadata
+FROM ValidationRule
+WHERE ValidationName = 'Your_Rule_API_Name'
+```
+
+2. PATCH `/services/data/v62.0/tooling/sobjects/ValidationRule/{Id}` with the retrieved metadata and `active` flipped:
+
+```json
+{
+  "Metadata": {
+    "active": false,
+    "errorConditionFormula": "<existing formula>",
+    "errorMessage": "<existing message>",
+    "errorDisplayField": "<existing field or omit if top-of-page>"
+  }
+}
+```
+
+Use the `FullName` from the GET (`ObjectApiName.RuleApiName`, with namespace prefixes if present). A mismatched `FullName` returns `INVALID_CROSS_REFERENCE_KEY`.
+
+Managed-package rules typically fail with `CANNOT_MODIFY_MANAGED_OBJECT`. Subscriber-editable (`installedEditable`) rules may still accept `active`.
+
+Metadata API `updateMetadata` on `ValidationRule` is equivalent; that is what SF Switch uses for this type.
+
+### Flows
+
+Salesforce documents that you can activate and deactivate flows with the Tooling [`FlowDefinition.Metadata`](https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/tooling_api_objects_flowdefinition.htm) field.
+
+```sql
+SELECT Id, DeveloperName, ActiveVersionId, LatestVersionId, ManageableState, NamespacePrefix,
+       ActiveVersion.VersionNumber, LatestVersion.VersionNumber
+FROM FlowDefinition
+WHERE DeveloperName = 'Your_Flow_API_Name'
+```
+
+PATCH `/services/data/v62.0/tooling/sobjects/FlowDefinition/{Id}`:
+
+```json
+{ "Metadata": { "activeVersionNumber": 3 } }
+```
+
+Use the latest (or intended) version number to **enable**. Use `0` to **disable** (no version active). SF Switch sends JSON `null` for the same deactivate.
+
+Do **not** PATCH the `Flow` version with `{ "Metadata": { "status": "Active" } }` just to toggle it. Updating a `Flow` record recreates that version; an already-active version returns `INVALID_STATUS` (*The version of the flow you're updating was active and can't be overwritten*). From API 44.0 Salesforce prefers the `Flow` object for **source-file** activation during Metadata API retrieve/deploy, but the practical Tooling toggle remains `FlowDefinition`.
+
+Limits that still apply:
+
+- Managed-package flows: `Flow.Metadata` is null; you generally cannot activate/deactivate publisher-owned flows.
+- Desktop Flow Designer (legacy) flows cannot be modified through the API.
+- The user needs API Enabled plus Customize Application (and usually Modify Metadata Through Metadata API Functions or Modify All Data).
+- After a Tooling toggle, confirm in **Setup → Flows** / **Validation Rules**, or re-query `Active` / `ActiveVersionId`. Inactive flows keep their versions; only the active pointer is cleared.
+
 ## 1. Diagnose in 2 minutes
 
 In **Developer Console → Query Editor**, enable **Use Tooling API** and run:
