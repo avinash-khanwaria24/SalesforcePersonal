@@ -27,6 +27,25 @@ flowchart TD
     D --> M
 ```
 
+## Can Tooling API deactivate a trigger?
+
+**No.** Salesforce’s Tooling API docs say this explicitly on [`ApexTrigger.Status`](https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/tooling_api_objects_apextrigger.htm):
+
+> Apex triggers cannot be deactivated using Tooling API. You can deactivate Apex triggers using Metadata API.
+
+That is current as of Winter ’27 (API 68.0).
+
+| Approach | Result |
+| --- | --- |
+| Tooling SOAP/REST `update` / `PATCH` on `ApexTrigger` (`Status = Inactive`) | Not supported. Often fails with `INSUFFICIENT_ACCESS_ON_CROSS_REFERENCE_ENTITY`, including for System Administrators. The `Status` field looks updatable; a runtime exception still occurs. |
+| Tooling `ApexTriggerMember` in a `MetadataContainer`, then `ContainerAsyncRequest` | That is a compile/save workspace, not a supported deactivation API. Staging `Metadata.status = Inactive` does not reliably change the live trigger. In **production**, Apex cannot be created, edited, or compiled in place at all. |
+| Metadata API `deploy()` of the trigger plus `-meta.xml` with `<status>Inactive</status>` | Supported path for **unpackaged** local triggers. Production deploys still run tests. |
+| Custom metadata / hierarchy custom setting checked in your trigger | Supported operational switch. Does not change `ApexTrigger.Status`. Required for packaged triggers you do not own. |
+
+Tooling API is fine for **reading** trigger rows (`SELECT Id, Name, Status, NamespacePrefix FROM ApexTrigger`). It is not the API that turns them off.
+
+Workbench “Update” on the `ApexTrigger` sObject is the same unsupported Tooling/SOAP update and produces the same cross-reference error.
+
 ## 1. Diagnose in 2 minutes
 
 In **Developer Console → Query Editor**, enable **Use Tooling API** and run:
