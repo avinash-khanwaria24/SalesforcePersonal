@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Per-trigger org-wide disable flag. The DeveloperName / Trigger Bypass Name must match the Apex trigger API name passed to TriggerBypassService.isBypassed.</description>
+    <label>Trigger Bypass</label>
+    <pluralLabel>Trigger Bypasses</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>
